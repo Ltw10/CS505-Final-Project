@@ -2,17 +2,17 @@
 import pika
 import sys
 import json
-import threading
+from sqlitedb import insert_into_sqlite
 
 def main():
 
     # Set the connection parameters to connect to rabbit-server1 on port 5672
     # on the / virtual host using the username "guest" and password "guest"
 
-    username = ''
-    password = ''
-    hostname = ''
-    virtualhost = ''
+    username = 'team_19'
+    password = 'myPassCS505'
+    hostname = 'vbu231.cs.uky.edu'
+    virtualhost = '19'
 
 
     credentials = pika.PlainCredentials(username, password)
@@ -68,6 +68,8 @@ def create_patient_list_channel(connection):
             print("\tpatient_status: " + str(test['patient_status']))
             print("\tcontact_list: " + str(test['contact_list']))
             print("\tevent_list: " + str(test['event_list']))
+
+            insert_into_sqlite(test)
 
 
 
