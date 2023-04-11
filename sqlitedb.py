@@ -20,6 +20,7 @@ def create_table(conn):
     cursor.execute("CREATE TABLE IF NOT EXISTS patient_data " 
               "(testing_id integer, patient_mrn integer, patient_name text, patient_zipcode integer, patient_status integer);")
     conn.commit()
+    conn.close()
     
 def insert_into_sqlite(entry):
     conn = create_connection()

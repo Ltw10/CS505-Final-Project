@@ -1,6 +1,10 @@
 from flask import Flask
+from subscriber import start_subscriber
+from services import retrieve_zip_alert_list, reset_dbs
 
 app = Flask(__name__)
+
+#start_subscriber()
 
 team = {
     "team_name": "It's Data Time",
@@ -11,13 +15,16 @@ team = {
 @app.get("/api/getteam")
 def get_team():
     return team
+
 @app.get("/api/reset")
 def reset():
+    reset_dbs()
     return {"reset_status_code": 0}
 
 @app.get("/api/zipalertlist")
 def get_zip_alert_list():
-    return {"ziplist": []}
+    zip_list = retrieve_zip_alert_list()
+    return {"ziplist": zip_list}
 
 @app.get("/api/alertlist")
 def get_state_alert_status():

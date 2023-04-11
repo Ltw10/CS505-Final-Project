@@ -3,8 +3,9 @@ import pika
 import sys
 import json
 from sqlitedb import insert_into_sqlite
+from services import update_zip_positive_map
 
-def main():
+def start_subscriber():
 
     # Set the connection parameters to connect to rabbit-server1 on port 5672
     # on the / virtual host using the username "guest" and password "guest"
@@ -33,6 +34,8 @@ def main():
     hospital_channel.start_consuming()
     vax_channel.start_consuming()
 
+    return
+
 def create_patient_list_channel(connection):
 
     patient_channel = connection.channel()
@@ -56,7 +59,6 @@ def create_patient_list_channel(connection):
 
 
     def callback_patient(ch, method, properties, body):
-        print(" [x] %r:%r" % (method.routing_key, body))
 
         testing_data = json.loads(body)
         for test in testing_data:
@@ -70,6 +72,8 @@ def create_patient_list_channel(connection):
             print("\tevent_list: " + str(test['event_list']))
 
             insert_into_sqlite(test)
+        
+        update_zip_positive_map()
 
 
 
@@ -101,7 +105,6 @@ def create_hospital_list_channel(connection):
 
 
     def callback_hospital(ch, method, properties, body):
-        print(" [x] %r:%r" % (method.routing_key, body))
 
         testing_data = json.loads(body)
         for test in testing_data:
@@ -140,7 +143,6 @@ def create_vax_list_channel(connection):
 
 
     def callback_vax(ch, method, properties, body):
-        print(" [x] %r:%r" % (method.routing_key, body))
 
         testing_data = json.loads(body)
         for test in testing_data:
@@ -155,6 +157,3 @@ def create_vax_list_channel(connection):
         queue=queue_name, on_message_callback=callback_vax, auto_ack=True)
 
     return vax_channel
-
-
-main()
