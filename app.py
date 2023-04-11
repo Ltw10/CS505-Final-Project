@@ -1,10 +1,12 @@
 from flask import Flask
+import threading
 from subscriber import start_subscriber
 from services import retrieve_zip_alert_list, reset_dbs
 
 app = Flask(__name__)
 
-#start_subscriber()
+subscriber_thread = threading.Thread(target=start_subscriber, daemon=True)
+subscriber_thread.start()
 
 team = {
     "team_name": "It's Data Time",
@@ -28,7 +30,12 @@ def get_zip_alert_list():
 
 @app.get("/api/alertlist")
 def get_state_alert_status():
-    return {"state_status": 0}
+    zip_list = retrieve_zip_alert_list()
+    if len(zip_list) >= 5:
+        state_status = 1
+    else:
+        state_status = 0
+    return {"state_status": state_status}
 
 @app.get("/api/getconfirmedcontacts/<mrn>")
 def get_confirmed_contacts(mrn):

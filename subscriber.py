@@ -34,8 +34,6 @@ def start_subscriber():
     hospital_channel.start_consuming()
     vax_channel.start_consuming()
 
-    return
-
 def create_patient_list_channel(connection):
 
     patient_channel = connection.channel()
