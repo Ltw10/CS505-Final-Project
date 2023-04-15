@@ -13,7 +13,7 @@ def update_zip_positive_map():
     zip_alert_list.clear()
     for row in rows:
         if row[0] in zip_positive_map:
-            if (row[1] / 2) > zip_positive_map[row[0]]:
+            if (row[1] / 2) >= zip_positive_map[row[0]]:
                 zip_alert_list.append(row[0])
         zip_positive_map[row[0]] = row[1]
 
