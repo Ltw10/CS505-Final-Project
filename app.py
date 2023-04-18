@@ -2,11 +2,19 @@ from flask import Flask
 import threading
 from subscriber import start_subscriber
 from services import retrieve_zip_alert_list, reset_dbs
+from sqlitedb import create_patient_data_table, create_hospital_data_table, create_vax_data_table
+from test import send_first_wave, send_second_wave
 
 app = Flask(__name__)
 
+create_patient_data_table()
+create_hospital_data_table()
+create_vax_data_table()
+
 subscriber_thread = threading.Thread(target=start_subscriber, daemon=True)
 subscriber_thread.start()
+# send_first_wave()
+# send_second_wave()
 
 team = {
     "team_name": "It's Data Time",

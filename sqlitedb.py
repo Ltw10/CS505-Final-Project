@@ -9,20 +9,36 @@ def create_connection():
     conn = None
     try:
         conn = sqlite3.connect(db_file)
-        print("Connected to SQLite DB")
     except Error as e:
         print(e)
     
     return conn
 
-def create_table(conn):
+def create_patient_data_table():
+    conn = create_connection()
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS patient_data " 
               "(testing_id integer, patient_mrn integer, patient_name text, patient_zipcode integer, patient_status integer);")
     conn.commit()
     conn.close()
+
+def create_hospital_data_table():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS hospital_data " 
+              "(hospital_id integer, patient_mrn integer, patient_name text, patient_status integer);")
+    conn.commit()
+    conn.close()
+
+def create_vax_data_table():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS vax_data " 
+              "(vaccination_id integer, patient_name text, patient_mrn integer);")
+    conn.commit()
+    conn.close()
     
-def insert_into_sqlite(entry):
+def insert_into_patient_data_sqlite(entry):
     conn = create_connection()
     cursor = conn.cursor()
     insert_query = "INSERT INTO patient_data (testing_id, patient_mrn, patient_name, patient_zipcode, patient_status) VALUES (?, ?, ?, ?, ?);"
@@ -31,11 +47,33 @@ def insert_into_sqlite(entry):
     conn.commit()
     conn.close()
 
+def insert_into_hospital_data_sqlite(entry):
+    conn = create_connection()
+    cursor = conn.cursor()
+    insert_query = "INSERT INTO hospital_data (hospital_id, patient_mrn, patient_name, patient_status) VALUES (?, ?, ?, ?);"
+    values = (entry["hospital_id"], entry["patient_mrn"], entry["patient_name"], entry["patient_status"])
+    cursor.execute(insert_query, values)
+    conn.commit()
+    conn.close()
+
+def insert_into_vax_data_sqlite(entry):
+    conn = create_connection()
+    cursor = conn.cursor()
+    insert_query = "INSERT INTO vax_data (vaccination_id, patient_mrn, patient_name) VALUES (?, ?, ?);"
+    values = (entry["vaccination_id"], entry["patient_mrn"], entry["patient_name"])
+    cursor.execute(insert_query, values)
+    conn.commit()
+    conn.close()
+
 def reset_sqlite_db():
     conn = create_connection()
     cursor = conn.cursor()
-    cursor.execute("DROP TABLE patient_data;")
+    cursor.execute("DROP TABLE IF EXISTS patient_data;")
+    cursor.execute("DROP TABLE IF EXISTS hospital_data;")
+    cursor.execute("DROP TABLE IF EXISTS vax_data;")
     conn.commit()
-    print("Table Dropped")
-    create_table(conn)
     conn.close()
+    print("Tables Dropped")
+    create_patient_data_table()
+    create_hospital_data_table()
+    create_vax_data_table()
