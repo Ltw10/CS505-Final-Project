@@ -1,5 +1,4 @@
-import pyorient
-from pyorient import OrientDB
+
 import json
 import re
 
@@ -76,16 +75,8 @@ def get_confirmed_contacts(mrn):
     #get the RID of the person
     personNodeMRN = getrid(client,mrn)
 
-    #determine the shortest path
     pathlist = client.command("SELECT " + personNodeMRN + "")
 
-    #get distance
-    distance = len(pathlist[0].__getattr__('shortestPath'))
-
-    for node in pathlist[0].__getattr__('shortestPath'):
-        print(node)
-
-    #pyorient.otypes.OrientRecord
     client.close()
     return distance
 
