@@ -18,7 +18,7 @@ def create_patient_data_table():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS patient_data " 
-              "(testing_id integer, patient_mrn integer, patient_name text, patient_zipcode integer, patient_status integer);")
+              "(testing_id integer, patient_name text, patient_mrn text, patient_zipcode integer, patient_status integer);")
     conn.commit()
     conn.close()
 
@@ -26,7 +26,7 @@ def create_hospital_data_table():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS hospital_data " 
-              "(hospital_id integer, patient_mrn integer, patient_name text, patient_status integer);")
+              "(hospital_id integer, patient_mrn text, patient_name text, patient_status integer);")
     conn.commit()
     conn.close()
 
@@ -34,15 +34,15 @@ def create_vax_data_table():
     conn = create_connection()
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS vax_data " 
-              "(vaccination_id integer, patient_name text, patient_mrn integer);")
+              "(vaccination_id integer, patient_mrn text, patient_name text);")
     conn.commit()
     conn.close()
     
 def insert_into_patient_data_sqlite(entry):
     conn = create_connection()
     cursor = conn.cursor()
-    insert_query = "INSERT INTO patient_data (testing_id, patient_mrn, patient_name, patient_zipcode, patient_status) VALUES (?, ?, ?, ?, ?);"
-    values = (entry["testing_id"], entry["patient_mrn"], entry["patient_name"], entry["patient_zipcode"], entry["patient_status"])
+    insert_query = "INSERT INTO patient_data (testing_id, patient_name, patient_mrn, patient_zipcode, patient_status) VALUES (?, ?, ?, ?, ?);"
+    values = (entry["testing_id"], entry["patient_name"], entry["patient_mrn"], entry["patient_zipcode"], entry["patient_status"])
     cursor.execute(insert_query, values)
     conn.commit()
     conn.close()

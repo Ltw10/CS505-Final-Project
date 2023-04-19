@@ -108,6 +108,7 @@ def create_hospital_list_channel(connection):
         for hospital in hospital_data:
             print("*Python Class - Hospital Data*")
             print("\thospital_id: " + str(hospital['hospital_id']))
+            print("\tpatient_mrn: " + str(hospital["patient_mrn"]))
             print("\tpatient_name: " + str(hospital['patient_name']))
             print("\tpatient_status: " + str(hospital['patient_status']))
 

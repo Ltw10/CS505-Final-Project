@@ -1,9 +1,8 @@
 from flask import Flask
 import threading
 from subscriber import start_subscriber
-from services import retrieve_zip_alert_list, reset_dbs
+from services import retrieve_zip_alert_list, reset_dbs, generate_hospital_report, generate_overall_report
 from sqlitedb import create_patient_data_table, create_hospital_data_table, create_vax_data_table
-from test import send_first_wave, send_second_wave
 
 app = Flask(__name__)
 
@@ -13,8 +12,6 @@ create_vax_data_table()
 
 subscriber_thread = threading.Thread(target=start_subscriber, daemon=True)
 subscriber_thread.start()
-# send_first_wave()
-# send_second_wave()
 
 team = {
     "team_name": "It's Data Time",
@@ -55,8 +52,10 @@ def get_possible_contacts(mrn):
 
 @app.get("/api/getpatientstatus/<hospital_id>")
 def get_patient_status(hospital_id):
-    return {"insert hospital status here": 0}
+    hospital_report = generate_hospital_report(hospital_id)
+    return hospital_report
 
 @app.get("/api/getpatientstatus")
 def get_all_patient_status():
-    return {"insert patient status here": 0}
+    hospitals_report = generate_overall_report()
+    return hospitals_report
