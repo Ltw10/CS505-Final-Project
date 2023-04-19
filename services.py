@@ -1,8 +1,9 @@
 from sqlitedb import create_connection, reset_sqlite_db
 
-zip_positive_map = {}
-zip_alert_list = []
+zip_positive_map = {} # Used to store positive covid cases per zip code {key = zipcode, value = number of positive patients}
+zip_alert_list = [] # Used to store the zip codes that have doubled their positive cases between incoming batches
 
+# Queries the sqlite db to update both the zip positive map and the zip alert list
 def update_zip_positive_map():
     conn = create_connection()
     cursor = conn.cursor()
@@ -17,11 +18,14 @@ def update_zip_positive_map():
                 zip_alert_list.append(row[0])
         zip_positive_map[row[0]] = row[1]
 
+# Returns the zip alert list
 def retrieve_zip_alert_list():
     return zip_alert_list
 
+# Resets both the sqlite db and pyorient db
 def reset_dbs():
-    reset_sqlite_db()
+    reset_status = reset_sqlite_db()
+    return reset_status
 
 
 # Generates the complete hospital report for the get patient status endpoint given a hospital id

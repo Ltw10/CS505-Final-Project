@@ -25,8 +25,8 @@ def get_team():
 
 @app.get("/api/reset")
 def reset():
-    reset_dbs()
-    return {"reset_status_code": 0}
+    reset_status = reset_dbs()
+    return {"reset_status_code": reset_status}
 
 @app.get("/api/zipalertlist")
 def get_zip_alert_list():
