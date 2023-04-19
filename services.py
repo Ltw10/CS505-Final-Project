@@ -1,4 +1,5 @@
 from sqlitedb import create_connection, reset_sqlite_db
+from pyorientServices import reset_graphDB
 
 zip_positive_map = {} # Used to store positive covid cases per zip code {key = zipcode, value = number of positive patients}
 zip_alert_list = [] # Used to store the zip codes that have doubled their positive cases between incoming batches
@@ -25,6 +26,7 @@ def retrieve_zip_alert_list():
 # Resets both the sqlite db and pyorient db
 def reset_dbs():
     reset_status = reset_sqlite_db()
+    reset_graphDB()
     return reset_status
 
 
