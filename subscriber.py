@@ -4,7 +4,7 @@ import sys
 import json
 from sqlitedb import insert_into_patient_data_sqlite, insert_into_hospital_data_sqlite, insert_into_vax_data_sqlite
 from services import update_zip_positive_map
-from pyorientServices import createGraphDB, insert_into_graph
+from pyorientServices import insert_into_graph
 
 def start_subscriber():
 

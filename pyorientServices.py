@@ -7,34 +7,28 @@ dbname = "cs505graph"
 login = "root"
 password = "rootpwd"
 
+def create_graphDB(client):
+    # Create New Database
+    client.db_create(dbname,
+        pyorient.DB_TYPE_GRAPH,
+        pyorient.STORAGE_TYPE_PLOCAL)
+
+    db = client.db_open(dbname, login, password, pyorient.DB_TYPE_GRAPH)
+
+    client.command("CREATE CLASS Patient EXTENDS V")
+    client.command("CREATE PROPERTY Patient.MRN String")
+    client.command("CREATE PROPERTY Patient.contactList EMBEDDEDLIST String")
+    client.command("CREATE PROPERTY Patient.eventList EMBEDDEDLIST String")
+
 def reset_graphDB():
     client = pyorient.OrientDB("localhost", 2424)
     session = client.connect(login, password)
     
     if client.db_exists(dbname):
         client.db_drop(dbname)
-        # Create New Database
-        client.db_create(dbname,
-            pyorient.DB_TYPE_GRAPH,
-            pyorient.STORAGE_TYPE_PLOCAL)
-
-        db = client.db_open(dbname, login, password, pyorient.DB_TYPE_GRAPH)
-
-        client.command("CREATE CLASS Patient EXTENDS V")
-        client.command("CREATE PROPERTY Patient.MRN String")
-        client.command("CREATE PROPERTY Patient.contactList EMBEDDEDLIST String")
-        client.command("CREATE PROPERTY Patient.eventList EMBEDDEDLIST String")
-    else:
-        client.db_create(dbname,
-            pyorient.DB_TYPE_GRAPH,
-            pyorient.STORAGE_TYPE_PLOCAL)
-
-        db = client.db_open(dbname, login, password, pyorient.DB_TYPE_GRAPH)
-
-        client.command("CREATE CLASS Patient EXTENDS V")
-        client.command("CREATE PROPERTY Patient.MRN String")
-        client.command("CREATE PROPERTY Patient.contactList EMBEDDEDLIST String")
-        client.command("CREATE PROPERTY Patient.eventList EMBEDDEDLIST String")
+        
+    # Create New Database
+    create_graphDB(client)
     
     client.db_close()
 
@@ -57,18 +51,8 @@ def insert_into_graph(entries):
     session = client.connect(login, password)
 
     if not client.db_exists(dbname):
-        client.db_create(dbname,
-            pyorient.DB_TYPE_GRAPH,
-            pyorient.STORAGE_TYPE_PLOCAL)
+        create_graphDB
 
-        db = client.db_open(dbname, login, password, pyorient.DB_TYPE_GRAPH)
-
-        client.command("CREATE CLASS Patient EXTENDS V")
-        client.command("CREATE PROPERTY Patient.MRN String")
-        client.command("CREATE PROPERTY Patient.contactList EMBEDDEDLIST String")
-        client.command("CREATE PROPERTY Patient.eventList EMBEDDEDLIST String")
-
-        print("NEW GRAPH DB CREATED")
     else: 
         db = client.db_open(dbname, login, password, pyorient.DB_TYPE_GRAPH)
 
