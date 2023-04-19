@@ -4,7 +4,6 @@ import sys
 import json
 from sqlitedb import insert_into_patient_data_sqlite, insert_into_hospital_data_sqlite, insert_into_vax_data_sqlite
 from services import update_zip_positive_map
-from pyorientServices import createGraphDB, insert_into_graph
 
 def start_subscriber():
 
@@ -60,14 +59,13 @@ def create_patient_list_channel(connection):
     def callback_patient(ch, method, properties, body):
 
         patient_data = json.loads(body)
-        insert_into_graph(patient_data)
         for patient in patient_data:
             print("*Python Class - Patient Data*")
-            #print("\ttesting_id: " + str(patient['testing_id']))
-            #print("\tpatient_name: " + str(patient['patient_name']))
+            print("\ttesting_id: " + str(patient['testing_id']))
+            print("\tpatient_name: " + str(patient['patient_name']))
             print("\tpatient_mrn: " + str(patient['patient_mrn']))
-            #print("\tpatient_zipcode: " + str(patient['patient_zipcode']))
-            #print("\tpatient_status: " + str(patient['patient_status']))
+            print("\tpatient_zipcode: " + str(patient['patient_zipcode']))
+            print("\tpatient_status: " + str(patient['patient_status']))
             print("\tcontact_list: " + str(patient['contact_list']))
             print("\tevent_list: " + str(patient['event_list']))
 
@@ -108,11 +106,11 @@ def create_hospital_list_channel(connection):
 
         hospital_data = json.loads(body)
         for hospital in hospital_data:
-            # print("*Python Class - Hospital Data*")
-            # print("\thospital_id: " + str(hospital['hospital_id']))
-            # print("\tpatient_mrn: " + str(hospital["patient_mrn"]))
-            # print("\tpatient_name: " + str(hospital['patient_name']))
-            # print("\tpatient_status: " + str(hospital['patient_status']))
+            print("*Python Class - Hospital Data*")
+            print("\thospital_id: " + str(hospital['hospital_id']))
+            print("\tpatient_mrn: " + str(hospital["patient_mrn"]))
+            print("\tpatient_name: " + str(hospital['patient_name']))
+            print("\tpatient_status: " + str(hospital['patient_status']))
 
             insert_into_hospital_data_sqlite(hospital)
 
@@ -149,10 +147,10 @@ def create_vax_list_channel(connection):
 
         vax_data = json.loads(body)
         for vaccination in vax_data:
-            # print("*Python Class - Vax List*")
-            # print("\tvaccination_id: " + str(vaccination['vaccination_id']))
-            # print("\tpatient_name: " + str(vaccination['patient_name']))
-            # print("\tpatient_mrn: " + str(vaccination['patient_mrn']))
+            print("*Python Class - Vax List*")
+            print("\tvaccination_id: " + str(vaccination['vaccination_id']))
+            print("\tpatient_name: " + str(vaccination['patient_name']))
+            print("\tpatient_mrn: " + str(vaccination['patient_mrn']))
 
             insert_into_vax_data_sqlite(vaccination)
 
