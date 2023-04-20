@@ -20,6 +20,10 @@ def update_zip_positive_map():
         zip_positive_map[row[0]] = row[1]
 
 # Returns the zip alert list
+def retrieve_zip_alert_list():
+    return zip_alert_list
+
+# Uses the length of the zip alert list to define the state status
 def retrieve_state_status():
     if len(zip_alert_list) >= 5:
         state_status = 1

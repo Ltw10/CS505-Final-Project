@@ -36,8 +36,8 @@ def reset_graphDB():
         create_graphDB(client)
         
         client.db_close()
-    except Error as e:
-        print("Error resetting OrientDB graph database \n" + e)
+    except:
+        print("Error resetting OrientDB graph database \n")
         return 0
     return 1
 

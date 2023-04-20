@@ -1,7 +1,7 @@
 from flask import Flask
 import threading
 from subscriber import start_subscriber
-from services import retrieve_state_status, reset_dbs, generate_hospital_report, generate_overall_report
+from services import retrieve_state_status, retrieve_zip_alert_list, reset_dbs, generate_hospital_report, generate_overall_report
 from sqlitedb import create_patient_data_table, create_hospital_data_table, create_vax_data_table
 from pyorientServices import get_graph_contacts, get_graph_event_contacts
 
