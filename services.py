@@ -20,13 +20,16 @@ def update_zip_positive_map():
         zip_positive_map[row[0]] = row[1]
 
 # Returns the zip alert list
-def retrieve_zip_alert_list():
-    return zip_alert_list
+def retrieve_state_status():
+    if len(zip_alert_list) >= 5:
+        state_status = 1
+    else:
+        state_status = 0
+    return state_status
 
 # Resets both the sqlite db and pyorient db
 def reset_dbs():
-    reset_status = reset_sqlite_db()
-    reset_graphDB()
+    reset_status = reset_sqlite_db() and reset_graphDB()
     return reset_status
 
 
@@ -253,5 +256,3 @@ def generate_overall_report():
 
     # Return data
     return(report_data)
-
-

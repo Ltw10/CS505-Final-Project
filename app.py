@@ -1,7 +1,7 @@
 from flask import Flask
 import threading
 from subscriber import start_subscriber
-from services import retrieve_zip_alert_list, reset_dbs, generate_hospital_report, generate_overall_report
+from services import retrieve_state_status, reset_dbs, generate_hospital_report, generate_overall_report
 from sqlitedb import create_patient_data_table, create_hospital_data_table, create_vax_data_table
 from pyorientServices import get_graph_contacts, get_graph_event_contacts
 
@@ -36,11 +36,7 @@ def get_zip_alert_list():
 
 @app.get("/api/alertlist")
 def get_state_alert_status():
-    zip_list = retrieve_zip_alert_list()
-    if len(zip_list) >= 5:
-        state_status = 1
-    else:
-        state_status = 0
+    state_status = retrieve_state_status()
     return {"state_status": state_status}
 
 @app.get("/api/getconfirmedcontacts/<mrn>")
@@ -64,4 +60,4 @@ def get_all_patient_status():
     return hospitals_report
 
 if __name__ == "__main__":
-    app.run(host="ltwi229.cs.uky.edu",port=9999)
+    app.run(host="0.0.0.0",port=9999)

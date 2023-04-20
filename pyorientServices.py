@@ -25,16 +25,21 @@ def create_graphDB(client):
     client.command("CREATE CLASS Attended EXTENDS E")
 
 def reset_graphDB():
-    client = pyorient.OrientDB("localhost", 2424)
-    session = client.connect(login, password)
-    
-    if client.db_exists(dbname):
-        client.db_drop(dbname)
+    try:
+        client = pyorient.OrientDB("localhost", 2424)
+        session = client.connect(login, password)
         
-    # Create New Database
-    create_graphDB(client)
-    
-    client.db_close()
+        if client.db_exists(dbname):
+            client.db_drop(dbname)
+            
+        # Create New Database
+        create_graphDB(client)
+        
+        client.db_close()
+    except Error as e:
+        print("Error resetting OrientDB graph database \n" + e)
+        return 0
+    return 1
 
 def get_graph_contacts(patient_mrn):
     client = pyorient.OrientDB("localhost", 2424)
@@ -140,22 +145,4 @@ def insert_into_graph(entries):
             query = "CREATE EDGE Attended FROM " + current_patient_rid + " TO " + event_rid
             client.command(query)
 
-    print("GOOD TO GO")
     client.db_close()
-
-# reset_graphDB()
-
-entries = [
-    {
-        "patient_mrn": "1234sagsdgdsfg-sadasd",
-        "contact_list": ["2432532ghdfddfd", "dsadsfgewrw"],
-        "event_list": ["1243fdgdfg"]
-    },
-    {
-        "patient_mrn": "1234sagsdgdsfg-sadasa",
-        "contact_list": ["1234sagsdgdsfg-sadasd"],
-        "event_list": ["1243fdgdfg"]
-    }
-]
-# insert_into_graph(entries)
-# get_graph_event_contacts("1234sagsdgdsfg-sadasd")
