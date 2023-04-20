@@ -3,6 +3,7 @@ import threading
 from subscriber import start_subscriber
 from services import retrieve_zip_alert_list, reset_dbs, generate_hospital_report, generate_overall_report
 from sqlitedb import create_patient_data_table, create_hospital_data_table, create_vax_data_table
+from pyorientServices import get_graph_contacts
 
 app = Flask(__name__)
 
@@ -10,8 +11,8 @@ create_patient_data_table()
 create_hospital_data_table()
 create_vax_data_table()
 
-subscriber_thread = threading.Thread(target=start_subscriber, daemon=True)
-subscriber_thread.start()
+# subscriber_thread = threading.Thread(target=start_subscriber, daemon=True)
+# subscriber_thread.start()
 
 team = {
     "team_name": "It's Data Time",
@@ -44,7 +45,8 @@ def get_state_alert_status():
 
 @app.get("/api/getconfirmedcontacts/<mrn>")
 def get_confirmed_contacts(mrn):
-    return {"contactlist": []}
+    contact_list = get_graph_contacts(mrn)
+    return {"contactlist": contact_list}
 
 @app.get("/api/getpossiblecontacts/<mrn>")
 def get_possible_contacts(mrn):

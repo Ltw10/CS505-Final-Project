@@ -19,6 +19,7 @@ def create_graphDB(client):
     client.command("CREATE PROPERTY Patient.MRN String")
     client.command("CREATE PROPERTY Patient.contactList EMBEDDEDLIST String")
     client.command("CREATE PROPERTY Patient.eventList EMBEDDEDLIST String")
+    client.command("CREATE CLASS Contact EXTENDS E")
 
 def reset_graphDB():
     client = pyorient.OrientDB("localhost", 2424)
@@ -32,13 +33,13 @@ def reset_graphDB():
     
     client.db_close()
 
-def get_graph_contacts(client, patient_mrn):
-    #client = pyorient.OrientDB("localhost", 2424)
-    #session = client.connect(login, password)
+def get_graph_contacts(patient_mrn):
+    client = pyorient.OrientDB("localhost", 2424)
+    session = client.connect(login, password)
     
-    #db = client.db_open(dbname, login, password, pyorient.DB_TYPE_GRAPH)
+    db = client.db_open(dbname, login, password, pyorient.DB_TYPE_GRAPH)
 
-    query = "SELECT expand(out('Contact').MRN) FROM Patient WHERE MRN = '" + str(patient_mrn) + "'"
+    query = "SELECT expand(both(`Contact`).MRN) FROM Patient WHERE MRN = '" + str(patient_mrn) + "'"
     result = client.command(query)
     graph_contacts = [res.MRN for res in result]
     print(graph_contacts)
@@ -51,7 +52,7 @@ def insert_into_graph(entries):
     session = client.connect(login, password)
 
     if not client.db_exists(dbname):
-        create_graphDB
+        create_graphDB(client)
 
     else: 
         db = client.db_open(dbname, login, password, pyorient.DB_TYPE_GRAPH)
@@ -65,53 +66,36 @@ def insert_into_graph(entries):
         result = client.command(query)
         current_patient_rid = result[0]._rid
 
-        for mrnOfContact in contact_list:
-            # Check if contact MRN already exists as a Patient
-            query = "SELECT FROM Patient WHERE MRN = '" + str(mrnOfContact) + "'"
-            result = client.command(query)
-            
-            if len(result) > 0:
-               # Check if the MRN in the result is not equal to the MRN of the current patient
-                if str(result[0].MRN) != str(patient_mrn):
-                    # Create an edge between the current patient and the contact patient
-                    contact_patient_rid = result[0]._rid
-                    query = "CREATE EDGE Contact FROM " + current_patient_rid + " TO " + contact_patient_rid
-                    client.command(query)
-                    #print("EDGE CREATED")
-        
     for entry in entries:
+        
         patient_mrn = entry['patient_mrn']
+        contact_list = entry['contact_list']
+        
         query = "SELECT FROM Patient WHERE MRN = '" + str(patient_mrn) + "'"
         result = client.command(query)
-
-        if len(result) > 0:
-            requested_patient_rid = result[0]._rid
-
-            # Use TRAVERSE to find all vertices connected by the "Contact" edge to the requested MRN
-            query = "TRAVERSE out('Contact') FROM " + requested_patient_rid
+        current_patient_rid = result[0]._rid
+        
+        for mrnOfContact in contact_list:
+            query = "SELECT FROM Patient WHERE MRN = '" + str(mrnOfContact) + "'"
             result = client.command(query)
-
-            # Extract MRNs from the query result
-            mrns = [r.MRN for r in result if 'MRN' in r.oRecordData]
-            print(str(patient_mrn) + "has the mrns:", mrns)
-        else:
-            print("Requested MRN not found.")
-    
+            # Check if patient already exists
+            if len(result) > 0:
+                contact_patient_rid = result[0]._rid 
+            # If patient with mrn doesn't exist create them
+            else:
+                query = "CREATE VERTEX Patient SET MRN = '" + str(mrnOfContact) + "'"
+                result = client.command(query)
+                contact_patient_rid = result[0]._rid
+            # Check if this is connection to itself
+            if current_patient_rid != contact_patient_rid:
+                query = "SELECT * FROM Contact WHERE (in.MRN = '" + patient_mrn + "' or out.MRN = '" + patient_mrn + "') and (in.MRN = '" + mrnOfContact + "' or out.MRN = '" + mrnOfContact + "')"
+                result = client.command(query)
+                # Check for already existing connection
+                if len(result) == 0:
+                    query = "CREATE EDGE Contact FROM " + current_patient_rid + " TO " + contact_patient_rid
+                    client.command(query)
 
     client.db_close()
 
-
-#  # Define the query to retrieve all patients
-#     query = "SELECT FROM Patient"
-#     # Execute the query
-#     result = client.query(query)
-#     # Iterate through the result and print the property values for each patient
-#     for record in result:
-#         mrn = record.oRecordData['MRN']
-#         contact_list = record.oRecordData['contactList']
-#         event_list = record.oRecordData['eventList']
-#         print("MRN: {}".format(mrn))
-#         print("contactList: {}".format(contact_list))
-#         print("eventList: {}".format(event_list))
-
-reset_graphDB()
+# reset_graphDB()
+get_graph_contacts("b1464a3b-df16-11ed-aa60-f13b744995b8")
