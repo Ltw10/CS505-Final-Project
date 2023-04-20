@@ -3,7 +3,7 @@ import threading
 from subscriber import start_subscriber
 from services import retrieve_zip_alert_list, reset_dbs, generate_hospital_report, generate_overall_report
 from sqlitedb import create_patient_data_table, create_hospital_data_table, create_vax_data_table
-from pyorientServices import get_graph_contacts
+from pyorientServices import get_graph_contacts, get_graph_event_contacts
 
 app = Flask(__name__)
 
@@ -50,6 +50,7 @@ def get_confirmed_contacts(mrn):
 
 @app.get("/api/getpossiblecontacts/<mrn>")
 def get_possible_contacts(mrn):
+    get_graph_event_contacts(mrn)
     return {"contactlist": []}
 
 @app.get("/api/getpatientstatus/<hospital_id>")

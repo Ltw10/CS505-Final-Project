@@ -20,6 +20,9 @@ def create_graphDB(client):
     client.command("CREATE PROPERTY Patient.contactList EMBEDDEDLIST String")
     client.command("CREATE PROPERTY Patient.eventList EMBEDDEDLIST String")
     client.command("CREATE CLASS Contact EXTENDS E")
+    client.command("CREATE CLASS Event EXTENDS V")
+    client.command("CREATE PROPERTY Event.id Integer")
+    client.command("CREATE CLASS Attended EXTENDS E")
 
 def reset_graphDB():
     client = pyorient.OrientDB("localhost", 2424)
@@ -42,10 +45,22 @@ def get_graph_contacts(patient_mrn):
     query = "SELECT expand(both(`Contact`).MRN) FROM Patient WHERE MRN = '" + str(patient_mrn) + "'"
     result = client.command(query)
     graph_contacts = [res.value for res in result]
-    print(graph_contacts)
+    return graph_contacts
 
     client.db_close()
 
+def get_graph_event_contacts(patient_mrn):
+    client = pyorient.OrientDB("localhost", 2424)
+    session = client.connect(login, password)
+    
+    db = client.db_open(dbname, login, password, pyorient.DB_TYPE_GRAPH)
+
+    query = "SELECT expand(out(`Attended`).id) FROM Patient WHERE MRN = '" + str(patient_mrn) + "'"
+    result = client.command(query)
+    event_ids = [res.value for res in result]
+    print(graph_contacts)
+
+    client.db_close()
 
 def insert_into_graph(entries):
     client = pyorient.OrientDB("localhost", 2424)
@@ -57,33 +72,37 @@ def insert_into_graph(entries):
     else: 
         db = client.db_open(dbname, login, password, pyorient.DB_TYPE_GRAPH)
 
-    for index, entry in enumerate(entries):
+    # Create patient verticies
+    for entry in entries:
         patient_mrn = entry['patient_mrn']
         contact_list = entry['contact_list']
         event_list = entry['event_list']
         
-        query = "CREATE VERTEX Patient SET MRN = '" + str(patient_mrn) + "', contactList = " + str(contact_list) + ", eventList = " + str(event_list)
+        query = "CREATE VERTEX Patient SET MRN = '" + patient_mrn + "', contactList = " + str(contact_list) + ", eventList = " + str(event_list)
         result = client.command(query)
         current_patient_rid = result[0]._rid
 
+    # Creating contact list edges and event list edges
     for entry in entries:
         
         patient_mrn = entry['patient_mrn']
         contact_list = entry['contact_list']
+        event_list = entry['event_list']
         
-        query = "SELECT FROM Patient WHERE MRN = '" + str(patient_mrn) + "'"
+        query = "SELECT FROM Patient WHERE MRN = '" + patient_mrn + "'"
         result = client.command(query)
         current_patient_rid = result[0]._rid
         
+        # Loops through all contacts from contact list to create an edge
         for mrnOfContact in contact_list:
-            query = "SELECT FROM Patient WHERE MRN = '" + str(mrnOfContact) + "'"
+            query = "SELECT FROM Patient WHERE MRN = '" + mrnOfContact + "'"
             result = client.command(query)
             # Check if patient already exists
             if len(result) > 0:
                 contact_patient_rid = result[0]._rid 
             # If patient with mrn doesn't exist create them
             else:
-                query = "CREATE VERTEX Patient SET MRN = '" + str(mrnOfContact) + "'"
+                query = "CREATE VERTEX Patient SET MRN = '" + mrnOfContact + "'"
                 result = client.command(query)
                 contact_patient_rid = result[0]._rid
             # Check if this is connection to itself
@@ -95,7 +114,38 @@ def insert_into_graph(entries):
                     query = "CREATE EDGE Contact FROM " + current_patient_rid + " TO " + contact_patient_rid
                     client.command(query)
 
+        for event in event_list:
+            query = "SELECT FROM Event WHERE id = '" + event + "'"
+            result = client.command(query)
+            # Event does not yet exist
+            if len(result) == 0:
+                query = "CREATE VERTEX Event SET id = '" + event + "'"
+                result = client.command(query)
+                event_rid = result[0]._rid
+            # Event exists
+            else:
+                query = "SELECT * FROM Event WHERE id = '" + event + "'"
+                result = client.command(query)
+                event_rid = result[0]._rid
+            query = "CREATE EDGE Attended FROM " + current_patient_rid + " TO " + event_rid
+            client.command(query)
+
+    print("GOOD TO GO")
     client.db_close()
 
 # reset_graphDB()
-get_graph_contacts("9220c11d-df19-11ed-aa60-f13b744995b8")
+
+entries = [
+    {
+        "patient_mrn": "1234sagsdgdsfg-sadasd",
+        "contact_list": ["2432532ghdfddfd", "dsadsfgewrw"],
+        "event_list": ["1243fdgdfg"]
+    },
+    {
+        "patient_mrn": "1234sagsdgdsfg-sadasa",
+        "contact_list": ["1234sagsdgdsfg-sadasd"],
+        "event_list": ["1243fdgdfg"]
+    }
+]
+
+insert_into_graph(entries)
