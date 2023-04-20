@@ -11,13 +11,13 @@ create_patient_data_table()
 create_hospital_data_table()
 create_vax_data_table()
 
-# subscriber_thread = threading.Thread(target=start_subscriber, daemon=True)
-# subscriber_thread.start()
+subscriber_thread = threading.Thread(target=start_subscriber, daemon=True)
+subscriber_thread.start()
 
 team = {
     "team_name": "It's Data Time",
     "team_members_sids": [12295705, 12365153, 12406612],
-    "app_status_code": 0
+    "app_status_code": 1
 }
 
 @app.get("/api/getteam")
@@ -50,8 +50,8 @@ def get_confirmed_contacts(mrn):
 
 @app.get("/api/getpossiblecontacts/<mrn>")
 def get_possible_contacts(mrn):
-    get_graph_event_contacts(mrn)
-    return {"contactlist": []}
+    possible_contacts = get_graph_event_contacts(mrn)
+    return {"contactlist": possible_contacts}
 
 @app.get("/api/getpatientstatus/<hospital_id>")
 def get_patient_status(hospital_id):
@@ -62,3 +62,6 @@ def get_patient_status(hospital_id):
 def get_all_patient_status():
     hospitals_report = generate_overall_report()
     return hospitals_report
+
+if __name__ == "__main__":
+    app.run(host="ltwi229.cs.uky.edu",port=9999)

@@ -21,7 +21,7 @@ def create_graphDB(client):
     client.command("CREATE PROPERTY Patient.eventList EMBEDDEDLIST String")
     client.command("CREATE CLASS Contact EXTENDS E")
     client.command("CREATE CLASS Event EXTENDS V")
-    client.command("CREATE PROPERTY Event.id Integer")
+    client.command("CREATE PROPERTY Event.eventId String")
     client.command("CREATE CLASS Attended EXTENDS E")
 
 def reset_graphDB():
@@ -55,12 +55,22 @@ def get_graph_event_contacts(patient_mrn):
     
     db = client.db_open(dbname, login, password, pyorient.DB_TYPE_GRAPH)
 
-    query = "SELECT expand(out(`Attended`).id) FROM Patient WHERE MRN = '" + str(patient_mrn) + "'"
+    possible_contacts = {}
+
+    query = "SELECT expand(out(`Attended`).eventId) FROM Patient WHERE MRN = '" + patient_mrn + "'"
     result = client.command(query)
     event_ids = [res.value for res in result]
-    print(graph_contacts)
+    for event_id in event_ids:
+        query = "SELECT expand(in(`Attended`).MRN) FROM Event WHERE eventId = '" + event_id + "'"
+        result = client.command(query)
+        possible_contact_mrns = [res.value for res in result]
+        possible_contact_mrns.remove(patient_mrn)
+        possible_contacts[event_id] = possible_contact_mrns
+    print(possible_contacts)
 
     client.db_close()
+
+    return possible_contacts
 
 def insert_into_graph(entries):
     client = pyorient.OrientDB("localhost", 2424)
@@ -115,16 +125,16 @@ def insert_into_graph(entries):
                     client.command(query)
 
         for event in event_list:
-            query = "SELECT FROM Event WHERE id = '" + event + "'"
+            query = "SELECT FROM Event WHERE eventId = '" + event + "'"
             result = client.command(query)
             # Event does not yet exist
             if len(result) == 0:
-                query = "CREATE VERTEX Event SET id = '" + event + "'"
+                query = "CREATE VERTEX Event SET eventId = '" + event + "'"
                 result = client.command(query)
                 event_rid = result[0]._rid
             # Event exists
             else:
-                query = "SELECT * FROM Event WHERE id = '" + event + "'"
+                query = "SELECT * FROM Event WHERE eventId = '" + event + "'"
                 result = client.command(query)
                 event_rid = result[0]._rid
             query = "CREATE EDGE Attended FROM " + current_patient_rid + " TO " + event_rid
@@ -147,5 +157,5 @@ entries = [
         "event_list": ["1243fdgdfg"]
     }
 ]
-
-insert_into_graph(entries)
+# insert_into_graph(entries)
+# get_graph_event_contacts("1234sagsdgdsfg-sadasd")
