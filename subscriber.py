@@ -71,7 +71,7 @@ def create_patient_list_channel(connection):
             print("\tevent_list: " + str(patient['event_list']))
 
             insert_into_patient_data_sqlite(patient)
-        
+        insert_into_graph(patient_data)
         update_zip_positive_map()
 
 

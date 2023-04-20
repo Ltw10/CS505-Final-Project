@@ -41,10 +41,10 @@ def get_graph_contacts(patient_mrn):
 
     query = "SELECT expand(both(`Contact`).MRN) FROM Patient WHERE MRN = '" + str(patient_mrn) + "'"
     result = client.command(query)
-    graph_contacts = [res.MRN for res in result]
+    graph_contacts = [res.value for res in result]
     print(graph_contacts)
 
-    #client.db_close()
+    client.db_close()
 
 
 def insert_into_graph(entries):
@@ -98,4 +98,4 @@ def insert_into_graph(entries):
     client.db_close()
 
 # reset_graphDB()
-get_graph_contacts("b1464a3b-df16-11ed-aa60-f13b744995b8")
+get_graph_contacts("9220c11d-df19-11ed-aa60-f13b744995b8")
